@@ -27,7 +27,7 @@ global with sharing class ProductZoningService {
         
         //ultima query para comparar os dados válidos e trazer a zona de voo correta
         List<Product_Geo_Mapping__mdt> mappings = [
-            SELECT Permissible_Fly_Zone__c FROM Product_Geo_Mapping__mdt WHERE Permissible_Fly_Zone__c = :product.Family AND Country_Code__c = :countryCode LIMIT 1
+            SELECT Permissible_Fly_Zone__c FROM Product_Geo_Mapping__mdt WHERE Product_Family__c = :product.Family AND Country_Code__c = :countryCode LIMIT 1
         ];
         
         if(!mappings.isEmpty()) {

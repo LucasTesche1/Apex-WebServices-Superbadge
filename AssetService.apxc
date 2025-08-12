@@ -1,19 +1,16 @@
-@RestResource(urlMapping='/lost/*')
-
-global with sharing class AssetService {
-    
+@RestResource(urlMapping='/lost/')
+global without sharing class AssetService {
+    @HttpPost
     global static String reportLostDevice(String assetIdentifier){
-        
-        List<Asset> assets = [SELECT Id, Name, Asset_Identifier__c, Status, ContactId FROM Asset WHERE Asset_Identifier__c = :assetIdentifier];
+        List<Asset> assets = [SELECT Id, Name, Asset_Identifier__c, Status,ContactId FROM Asset WHERE Asset_Identifier__c = :assetIdentifier];
         //atualizando o status do ativo
         if (assets.size() > 0 ){
             assets[0].Status = 'Lost';
             update assets[0];
-             
-            List<Insurance__c> insurances = [SELECT Id, Asset__c FROM Insurance__c WHERE Asset__c = :assets[0].Id AND Coverage__c = 'Comprehensive' AND Active__c = true LIMIT 1];
+            List<Insurance__c> insurances = [SELECT Id, Asset__c FROM Insurance__c WHERE Asset__c = :assets[0].Id AND Coverage__c ='Comprehensive' AND Active__c = true LIMIT 1];
             //puxando o ativo que possui seguro
             if (insurances.size() > 0){
-                List<Claim__c> claims = [SELECT Id, Name FROM Claim__c WHERE Insurance__c = :insurances[0].Id AND Type__c  = 'Loss' LIMIT 1];
+                List<Claim__c> claims = [SELECT Id,Name FROM Claim__c WHERE Insurance__c = :insurances[0].Id AND Type__c = 'Loss' LIMIT 1];
                 //tratando a solicitação caso ela não exista
                 if(claims.size() <= 0 ){
                     Claim__c claim = new Claim__c();
@@ -22,12 +19,9 @@ global with sharing class AssetService {
                     claim.Contact__c = assets[0].ContactId;
 					claim.Type__c = 'Loss';
 					claim.Asset__c = assets[0].Id;                    
-                    
                     insert claim;
-                    
                     //puxando solicitação atualizada
-                    Claim__c claimUpdated = [SELECT Id, Name FROM Claim__c WHERE Insurance__c = :insurances[0].Id AND Type__c  = 'Loss' Order by CreatedDate DESC LIMIT 1];
-                    
+                    Claim__c claimUpdated = [SELECT Id,Name FROM Claim__c WHERE Insurance__c = :insurances[0].Id AND Type__c = 'Loss' Order by CreatedDate DESC LIMIT 1];                    
                     return claimUpdated.Name;
                 }                
                 else {
@@ -35,12 +29,12 @@ global with sharing class AssetService {
                 }                
             }            
             else{
-                return ('No coverage. Asset status adjusted to Lost. ');
+                return ('No coverage. Asset status adjusted to Lost.');
             }
         }        
         //Caso o ativo não exista:
         else {
-            return ('No devide found. ');
+            return ('No device found.');
         }        
     }
 }

@@ -51,6 +51,6 @@ private class AssetServiceTest {
         Test.stopTest();
         	List<Claim__c> claims = [SELECT Id,Name FROM Claim__c WHERE Insurance__c = :testInsurance.Id AND Type__c = 'Loss' LIMIT 1];
         //Verifica
-		System.assertEquals(claims[0].Name, result, 'Expected message for already filed claim');
+		System.assertEquals(claims[0].Name, result, 'Expected message for already filled claim');
     }
 }
